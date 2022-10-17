@@ -1,0 +1,22 @@
+{
+  "extends": [
+    "airbnb-base"
+  ],
+  "plugins": [
+    "import",
+    "jest"
+  ],
+  "rules": {
+    "object-curly-newline": [
+      "off"
+    ],
+    "import/no-extraneous-dependencies": [
+      "off"
+    ]
+  },
+  "env": {
+    "node": true,
+    "es6": true,
+    "jest/globals": true
+  }
+}
