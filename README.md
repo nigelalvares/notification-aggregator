@@ -26,3 +26,4 @@ PUT notifications/{post-id}/{notification-id}/read
 - Implement authentication via lambda authorizer using bearer tokens
 - Improve logging and error handling
 - Write integration/system tests
+- Nice name for domain
