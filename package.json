@@ -1,0 +1,21 @@
+{
+  "name": "notification-aggregator",
+  "version": "1.0.0",
+  "description": "an application that aggregates notifications for posts made by users",
+  "main": "main.js",
+  "scripts": {
+    "test": "mocha */test/**",
+    "lint": "eslint */src/*.js */src/**/*.js --fix"
+  },
+  "devDependencies": {
+    "mocha": "^9.0.3",
+    "proxyquire": "^2.1.0",
+    "sinon": "^8.1.1",
+    "chai": "^4.3.1",
+    "chai-as-promised": "^7.1.1",
+    "dirty-chai": "^2.0.1",
+    "eslint": "^8.23.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-jest": "^26.8.3"
+  }
+}

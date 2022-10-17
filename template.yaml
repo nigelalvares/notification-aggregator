@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+
+Resources:
+  NotificationsApi:
+    Type: "AWS::Serverless::Api"
+    Properties:
+      Name: NotificationsApi
+      StageName: 'prod'
+      EndpointConfiguration: REGIONAL
+      MinimumCompressionSize: 0
+      TracingEnabled: true
+      OpenApiVersion: "3.0.1"
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: ./api-definition.yaml
+
+  CreateNotificationLambdaLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: "/aws/lambda/CreateNotificationLambda"
+
+  CreateNotificationLambda:
+    Type: "AWS::Serverless::Function"
+    DependsOn: CreateNotificationLambdaLogGroup
+    Properties:
+      FunctionName: "Create-Notification"
+      Runtime: "nodejs16.x"
+      Handler: "src/create-notification.handler"
+      Timeout: 30
+      MemorySize: 512
+      Tracing: "Active"
+      CodeUri: "./create-notification"
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotificationsTable
+      Environment:
+        Variables:
+          NOTIFICATIONS_TABLE: !Ref NotificationsTable
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotificationsApi
+            Path: /notifications/{post-id}
+            Method: POST
+            RequestParameters:
+              - method.request.path.post-id:
+                  Required: true
+
+  GetNotificationsLambdaLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: "/aws/lambda/GetNotifications"
+
+  GetNotificationsLambda:
+    Type: "AWS::Serverless::Function"
+    DependsOn:
+      - GetNotificationsLambdaLogGroup
+      - NotificationsTable
+    Properties:
+      FunctionName: "GetNotifications"
+      Runtime: "nodejs16.x"
+      Handler: "src/get-notifications.handler"
+      Timeout: 30
+      MemorySize: 512
+      Tracing: "Active"
+      CodeUri: "./get-notifications"
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotificationsTable
+      Environment:
+        Variables:
+          NOTIFICATIONS_TABLE: !Ref NotificationsTable
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotificationsApi
+            Path: /notifications/{post-id}
+            Method: GET
+            RequestParameters:
+              - method.request.path.post-id:
+                  Required: true
+
+  MarkNotificationLambdaLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: "/aws/lambda/MarkNotification"
+
+  MarkNotificationLambda:
+    Type: "AWS::Serverless::Function"
+    DependsOn:
+      - MarkNotificationLambdaLogGroup
+      - NotificationsTable
+    Properties:
+      FunctionName: "MarkNotification"
+      Runtime: "nodejs16.x"
+      Handler: "src/mark-notification.handler"
+      Timeout: 30
+      MemorySize: 512
+      Tracing: "Active"
+      CodeUri: "./mark-notification"
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotificationsTable
+      Environment:
+        Variables:
+          NOTIFICATIONS_TABLE: !Ref NotificationsTable
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NotificationsApi
+            Path: /notifications/{post-id}/{notification-id}/read
+            Method: PUT
+            RequestParameters:
+              - method.request.path.post-id:
+                  Required: true
+              - method.request.path.notification-id:
+                  Required: true
+
+  NotificationsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: NotificationsTable
+      AttributeDefinitions:
+        - AttributeName: postId
+          AttributeType: S
+        - AttributeName: notificationId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: postId
+          KeyType: HASH
+        - AttributeName: notificationId
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1

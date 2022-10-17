@@ -1,0 +1,10 @@
+{
+  "name": "create-notification",
+  "version": "1.0.0",
+  "description": "lambda for creating notifications",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.183.0",
+    "@aws-sdk/util-dynamodb": "^3.185.0",
+    "uuid": "^9.0.0"
+  }
+}

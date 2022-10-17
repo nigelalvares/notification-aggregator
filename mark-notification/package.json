@@ -1,0 +1,9 @@
+{
+  "name": "mark-notification",
+  "version": "1.0.0",
+  "description": "mark notifications as read for a given post and notification id",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.183.0",
+    "@aws-sdk/util-dynamodb": "^3.185.0"
+  }
+}
